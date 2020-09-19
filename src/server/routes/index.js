@@ -9,6 +9,7 @@ const {
   getAllProductsShopByName,
 } = require("../db/queries/shops");
 const { addProduct } = require("../db/queries/products");
+const { FakeXMLHttpRequest } = require("sinon");
 
 const checkExist = (arr, name) => {
   return arr.some((e) => e.name === name);
@@ -23,82 +24,71 @@ router.get("/", async (ctx) => {
 router.get("productsShop", "/productsShop", async (ctx, next) => {
   // ctx.router available
   const query = ctx.query;
-  console.log({ query });
   const infoShop = await getInfoShop(query.url);
   const nameShop = infoShop.nameShop;
-  const productsShop = await getProducts(query.url);
   const allShop = await getAllProductsShopByName(infoShop.nameShop);
   const checkShopExistInDatabase = checkExist(allShop, nameShop);
-  console.log({ productsShop });
+
   if (checkShopExistInDatabase) {
     ctx.status = httpStatus.OK;
     ctx.body = allShop;
     await next();
   } else {
     const shop = {};
-    const product = {};
-
+    shop.id = 10;
     shop.name = nameShop;
     shop.image = infoShop.imageShop;
     shop.number_of_sale = infoShop.numberOfSaleShops;
     shop.number_of_favourite = infoShop.numberOfFavourites;
     shop.title = infoShop.titleShop;
     shop.link = "link";
+    console.log({ shop });
     addInfoShop(shop);
-
-    async (productsShop) => {
-      const getInfoProduct = async (link) => {
-        const info = await getInfoProduct(link);
-        product.listing_id = info.listingID;
-        let tags = "";
-        info.listTags.forEach((e) => (tags = tags.concat(e)));
-        product.tags = tags;
-      };
-
-      const getData = async () => {
-        return Promise.all(
-          productsShop.map((item) => {
-            product.name = item.title;
-            product.image = item.img;
-            product.shop_id = 1;
-            getInfoProduct(item);
-          })
+    const productsShop = await getProducts(query.url);
+    const getDataProducts = async (xs) => {
+      const data = {};
+      const dataProductsLength = xs.length;
+      console.log({ dataProductsLength });
+      for (let i = 0; i < dataProductsLength; i += 50) {
+        const requests = xs.slice(i, i + 10).map(async (x) => {
+          console.log({ x });
+          const img = x.img;
+          data.title = x.title;
+          try {
+            const a = await getInfoProduct(x.link);
+            // console.log({ a });
+            const arraysImage = a.arrayImages;
+            data.listing_id = a.listing_id;
+            let tags = "";
+            const listTags = a.tags;
+            listTags.forEach((e) => tags.concat(e).concat(","));
+            data.tags = tags;
+            // addProduct(data);
+            return data;
+          } catch (e) {
+            return console.log(`Error in sending email for ${x} - ${e}`);
+          }
+        });
+        await Promise.all(requests).catch((e) =>
+          console.log(`Error in sending email for the batch ${i} - ${e}`)
         );
-      };
+      }
     };
-    // productsShop.forEach((e) => {
-    //   product.name = e.title;
-    //   product.image = e.img;
-    //   product.shop_id = 1;
-    //   const getInfoProduct = async (link) => {
-    //     return await getInfoProduct(link)
-    //   }
-
-    //   for (const link of e.link) {
-    //     const infoProduct = await getInfoProduct(link);
-    //     console.log({ infoProduct });
-    //     product.listing_id = infoProduct.listingID;
-    //     let tags = "";
-    //     infoProduct.listTags.forEach((e) => (tags = tags.concat(e)));
-    //     product.tags = tags;
-    //   }
-    //   console.log({ product });
-    //   addProduct(product);
-    // });
+    await getDataProducts(productsShop);
     ctx.status = httpStatus.OK;
     ctx.body = productsShop;
     await next();
   }
 });
 
-router.get("infoProduct", "/infoProduct", async (ctx, next) => {
-  // ctx.router available
-  const query = ctx.query;
-  const infoProduct = await getProducts(query.url);
-  ctx.status = httpStatus.OK;
-  ctx.body = infoProduct;
-  await next();
-});
+// router.get("infoProduct", "/infoProduct", async (ctx, next) => {
+//   // ctx.router available
+//   const query = ctx.query;
+//   const infoProduct = await getProducts(query.url);
+//   ctx.status = httpStatus.OK;
+//   ctx.body = infoProduct;
+//   await next();
+// });
 
 // router.get("infoShop", "/infoShop", async (ctx, next) => {
 //   // ctx.router available

@@ -5,6 +5,7 @@ function getAllProductsShopByName(name) {
 }
 
 function addInfoShop(shop) {
+  console.log("add");
   return knex("shops").insert(shop).returning("*");
 }
 

@@ -3,7 +3,9 @@ const puppeteer = require("puppeteer");
 const getProducts = async (url) => {
   const extractPartners = async (url) => {
     const page = await browser.newPage();
-    await page.goto(url);
+    await page.goto(url, {
+      timeout: 0,
+    });
     page.on("console", (msg) => {
       console.log({ msg });
     });
