@@ -34,10 +34,12 @@ const getProducts = async (url) => {
               ".v2-listing-card__img .height-placeholder > img"
             ).src,
           ] || [
-            product
-              .querySelector(".v2-listing-card__img .height-placeholder > img")
-              .getAttribute("data-src"),
-          ];
+              product
+                .querySelector(
+                  ".v2-listing-card__img .height-placeholder > img"
+                )
+                .getAttribute("data-src"),
+            ] || ["abcd"];
           dataJson.title = product.querySelector(
             ".v2-listing-card__info > div > h3"
           ).innerText;

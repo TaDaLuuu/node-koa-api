@@ -1,11 +1,15 @@
 const knex = require("../connection");
 
 function getAllProductsShop() {
-  return knex("products").select("*");
+  return knex("products")
+    .where(("shop_id", 10))
+    .select("*");
 }
 
 function addProduct(product) {
-  return knex("products").insert(product).returning("*");
+  return knex("products").then(() => {
+    return knex("products").insert(product);
+  });
 }
 
 function updateMovie(id, movie) {

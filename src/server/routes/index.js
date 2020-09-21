@@ -8,8 +8,7 @@ const {
   addInfoShop,
   getAllProductsShopByName,
 } = require("../db/queries/shops");
-const { addProduct } = require("../db/queries/products");
-const { FakeXMLHttpRequest } = require("sinon");
+const { addProduct, getAllProductsShop } = require("../db/queries/products");
 
 const checkExist = (arr, name) => {
   return arr.some((e) => e.name === name);
@@ -31,39 +30,44 @@ router.get("productsShop", "/productsShop", async (ctx, next) => {
 
   if (checkShopExistInDatabase) {
     ctx.status = httpStatus.OK;
-    ctx.body = allShop;
+    const productsFromDB = await getAllProductsShop();
+    console.log({ productsFromDB });
+    ctx.body = { allShop };
     await next();
   } else {
     const shop = {};
+    const data = {};
+    const products = [];
     shop.id = 10;
     shop.name = nameShop;
-    shop.image = infoShop.imageShop;
+    // shop.image = infoShop.imageShop;
     shop.number_of_sale = infoShop.numberOfSaleShops;
     shop.number_of_favourite = infoShop.numberOfFavourites;
     shop.title = infoShop.titleShop;
     shop.link = "link";
-    console.log({ shop });
+    // console.log({ shop });
     addInfoShop(shop);
     const productsShop = await getProducts(query.url);
+
     const getDataProducts = async (xs) => {
-      const data = {};
       const dataProductsLength = xs.length;
       console.log({ dataProductsLength });
-      for (let i = 0; i < dataProductsLength; i += 50) {
+      for (let i = 0; i < dataProductsLength; i += 20) {
         const requests = xs.slice(i, i + 10).map(async (x) => {
-          console.log({ x });
-          const img = x.img;
-          data.title = x.title;
           try {
             const a = await getInfoProduct(x.link);
-            // console.log({ a });
-            const arraysImage = a.arrayImages;
-            data.listing_id = a.listing_id;
+            const images = x.img.concat(a.arrayImages);
+            data.images = images;
+            data.listing_id = Number(a.listingID);
             let tags = "";
-            const listTags = a.tags;
-            listTags.forEach((e) => tags.concat(e).concat(","));
+            const listTags = a.listTags || [];
+            listTags.forEach((e) => (tags = tags.concat(e).concat(",")));
+            data.shop_id = 10;
             data.tags = tags;
-            // addProduct(data);
+            data.name = x.title;
+            // console.log({ data });
+            products.push(data);
+            addProduct(data);
             return data;
           } catch (e) {
             return console.log(`Error in sending email for ${x} - ${e}`);
@@ -76,7 +80,7 @@ router.get("productsShop", "/productsShop", async (ctx, next) => {
     };
     await getDataProducts(productsShop);
     ctx.status = httpStatus.OK;
-    ctx.body = productsShop;
+    ctx.body = { shop, products };
     await next();
   }
 });
