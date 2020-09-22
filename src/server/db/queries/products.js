@@ -1,9 +1,8 @@
 const knex = require("../connection");
 
-function getAllProductsShop() {
-  console.log(1);
-  return knex("shops").then(() => {
-    return knex("shops").where("products.shop_id", 10).select("*");
+function getAllProductsShop(id) {
+  return knex("products").then(() => {
+    return knex("products").where("shop_id", id).select("*");
   });
 }
 

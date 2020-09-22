@@ -5,7 +5,6 @@ function getAllProductsShopByName(name) {
 }
 
 function addInfoShop(shop) {
-  console.log("add Shop to DB");
   return knex("shops").then(() => {
     return knex("shops").insert(shop);
   });

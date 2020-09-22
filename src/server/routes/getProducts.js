@@ -34,12 +34,10 @@ const getProducts = async (url) => {
               ".v2-listing-card__img .height-placeholder > img"
             ).src,
           ] || [
-              product
-                .querySelector(
-                  ".v2-listing-card__img .height-placeholder > img"
-                )
-                .getAttribute("data-src"),
-            ] || ["abcd"];
+            product
+              .querySelector(".v2-listing-card__img .height-placeholder > img")
+              .getAttribute("data-src"),
+          ];
           dataJson.title = product.querySelector(
             ".v2-listing-card__info > div > h3"
           ).innerText;
@@ -55,10 +53,17 @@ const getProducts = async (url) => {
     });
 
     await page.close();
-
-    const nextPageNumber = parseInt(url.match(/page=(\d+)$/)[1], 10) + 1;
-    if (nextPageNumber < Number(lastNumberLi) + 1) {
-      const nextUrl = `${url}?page=${nextPageNumber}`;
+    const currentPageNumber = parseInt(url.match(/page=(\d+)$/)[1], 10);
+    const nextPageNumber = currentPageNumber + 1;
+    console.log({ nextPageNumber });
+    console.log({ lastNumberLi });
+    if (nextPageNumber <= Number(lastNumberLi)) {
+      console.log({ url });
+      const nextUrl = url.replace(
+        `page=${currentPageNumber}`,
+        `page=${nextPageNumber}`
+      );
+      console.log({ nextUrl });
       return partners.concat(await extractPartners(nextUrl));
     } else {
       return partners;

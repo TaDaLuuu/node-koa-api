@@ -9,18 +9,12 @@ module.exports = {
     migrations: {
       directory: path.join(BASE_PATH, "migrations"),
     },
-    seeds: {
-      directory: path.join(BASE_PATH, "seeds"),
-    },
   },
   development: {
     client: "pg",
     connection: "postgres://postgres@localhost:5432/koa_api",
     migrations: {
       directory: path.join(BASE_PATH, "migrations"),
-    },
-    seeds: {
-      directory: path.join(BASE_PATH, "seeds"),
     },
   },
 };
