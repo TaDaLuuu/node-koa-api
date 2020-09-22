@@ -32,13 +32,13 @@ router.get("productsShop", "/productsShop", async (ctx, next) => {
 
   if (checkShopExistInDatabase) {
     ctx.status = httpStatus.OK;
-    const productsFromDB = await getAllProductsShop(allShop[0].id_shop);
-    ctx.body = { allShop, productsFromDB };
+    const listProducts = await getAllProductsShop(allShop[0].id_shop);
+    ctx.body = { infoShop, listProducts };
     await next();
   } else {
-    const shop = {};
+    const infoShop = {};
     const data = {};
-    const products = [];
+    const listProducts = [];
     shop.id_shop = uuidv4();
     shop.name = nameShop;
     shop.image_shop = infoShop.imageShop;
@@ -81,7 +81,7 @@ router.get("productsShop", "/productsShop", async (ctx, next) => {
         data.tags = tags;
         data.name = xs[i].title;
         listListingID.push(data.listing_id);
-        products.push(data);
+        listProducts.push(data);
         // console.log({ data });
         const count = countElementInArray(listListingID, data.listing_id);
         if (count === 1) {
@@ -91,7 +91,7 @@ router.get("productsShop", "/productsShop", async (ctx, next) => {
     };
     await getDataProducts(productsShop);
     ctx.status = httpStatus.OK;
-    ctx.body = { shop, products };
+    ctx.body = { infoShop, listProducts };
     await next();
   }
 });
