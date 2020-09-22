@@ -30,8 +30,8 @@ router.get("productsShop", "/productsShop", async (ctx, next) => {
 
   if (checkShopExistInDatabase) {
     ctx.status = httpStatus.OK;
-    const productsFromDB = await getAllProductsShop();
-    console.log({ productsFromDB });
+    // const productsFromDB = await getAllProductsShop();
+    // console.log({ productsFromDB });
     ctx.body = { allShop };
     await next();
   } else {
@@ -40,7 +40,7 @@ router.get("productsShop", "/productsShop", async (ctx, next) => {
     const products = [];
     shop.id = 10;
     shop.name = nameShop;
-    // shop.image = infoShop.imageShop;
+    shop.image = infoShop.imageShop;
     shop.number_of_sale = infoShop.numberOfSaleShops;
     shop.number_of_favourite = infoShop.numberOfFavourites;
     shop.title = infoShop.titleShop;
@@ -57,7 +57,7 @@ router.get("productsShop", "/productsShop", async (ctx, next) => {
           try {
             const a = await getInfoProduct(x.link);
             const images = x.img.concat(a.arrayImages);
-            data.images = images;
+            data.image = images;
             data.listing_id = Number(a.listingID);
             let tags = "";
             const listTags = a.listTags || [];

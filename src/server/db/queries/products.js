@@ -1,9 +1,10 @@
 const knex = require("../connection");
 
 function getAllProductsShop() {
-  return knex("products")
-    .where(("shop_id", 10))
-    .select("*");
+  console.log(1);
+  return knex("shops").then(() => {
+    return knex("shops").where("products.shop_id", 10).select("*");
+  });
 }
 
 function addProduct(product) {
