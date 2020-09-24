@@ -10,6 +10,7 @@ const {
   getAllProductsShopByName,
 } = require("../db/queries/shops");
 const { addProduct, getAllProductsShop } = require("../db/queries/products");
+const fs = require("fs");
 
 const checkExist = (arr, name) => {
   return arr.some((e) => e.name === name);
@@ -22,34 +23,42 @@ router.get("/", async (ctx) => {
     message: "hello, world!",
   };
 });
+
+router.post("uploadFileTM", "/uploadFileTM", async (ctx, next) => {
+  const fileName = "/../../TMList2.txt";
+  fs.writeFile(__dirname + fileName, ctx.request.body.text, function (
+    err,
+    data
+  ) {
+    console.log(err || data);
+  });
+  ctx.status = httpStatus.OK;
+  ctx.body = "Update File TM Successfully";
+  await next();
+});
+
 router.get("productsShop", "/productsShop", async (ctx, next) => {
   // ctx.router available
+  const fileName = "/../../TMList2.txt";
+  const fileTM = fs.readFileSync(__dirname + fileName, "utf-8");
   const query = ctx.query;
   const infoShop = await getInfoShop(query.url);
-  const nameShop = infoShop.nameShop;
-  const allShop = await getAllProductsShopByName(infoShop.nameShop);
+  const nameShop = infoShop.name;
+  const allShop = await getAllProductsShopByName(nameShop);
   const checkShopExistInDatabase = checkExist(allShop, nameShop);
 
   if (checkShopExistInDatabase) {
     ctx.status = httpStatus.OK;
     const listProducts = await getAllProductsShop(allShop[0].id_shop);
-    ctx.body = { infoShop, listProducts };
+    ctx.body = { infoShop, listProducts, fileTM };
     await next();
   } else {
-    const infoShop = {};
     const data = {};
     const listProducts = [];
-    shop.id_shop = uuidv4();
-    shop.name = nameShop;
-    shop.image_shop = infoShop.imageShop;
-    shop.number_of_sale = infoShop.numberOfSaleShops;
-    shop.number_of_favourite = infoShop.numberOfFavourites;
-    shop.title = infoShop.titleShop;
-    shop.link = "link";
-
+    infoShop.id_shop = uuidv4();
     const productsShop = await getProducts(query.url);
     if (productsShop.length !== 0) {
-      addInfoShop(shop);
+      addInfoShop(infoShop);
     }
     const countElementInArray = (array, value) => {
       let count = 0;
@@ -62,27 +71,24 @@ router.get("productsShop", "/productsShop", async (ctx, next) => {
     };
     const getDataProducts = async (xs) => {
       const dataProductsLength = xs.length;
-      console.log({ dataProductsLength });
       const listListingID = [];
       let id_product = 0;
       for (let i = 0; i < dataProductsLength; i++) {
         id_product = id_product + 1;
-        console.log({ id_product });
         const a = await getInfoProduct(xs[i].link);
-        const images = xs[i].img.concat(a.arrayImages);
+        a.arrayImages.push(xs[i].img);
         data.id_product = id_product;
-        data.images_product = images;
+        data.images_product = a.arrayImages;
         data.listing_id = Number(a.listingID);
 
         let tags = "";
         const listTags = a.listTags || [];
         listTags.forEach((e) => (tags = tags.concat(e).concat(",")));
-        data.shop_id = shop.id_shop;
+        data.shop_id = infoShop.id_shop;
         data.tags = tags;
         data.name = xs[i].title;
         listListingID.push(data.listing_id);
         listProducts.push(data);
-        // console.log({ data });
         const count = countElementInArray(listListingID, data.listing_id);
         if (count === 1) {
           addProduct(data);
@@ -91,7 +97,7 @@ router.get("productsShop", "/productsShop", async (ctx, next) => {
     };
     await getDataProducts(productsShop);
     ctx.status = httpStatus.OK;
-    ctx.body = { infoShop, listProducts };
+    ctx.body = { infoShop, listProducts, fileTM };
     await next();
   }
 });
