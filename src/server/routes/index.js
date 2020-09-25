@@ -24,6 +24,19 @@ router.get("/", async (ctx) => {
   };
 });
 
+router.post("uploadTemplate", "/uploadTemplate", async (ctx, next) => {
+  const fileName = "../../template.txt";
+  fs.writeFile(__dirname + fileName, ctx.request.body.text, function (
+    err,
+    data
+  ) {
+    console.log(err || data);
+  });
+  ctx.status = httpStatus.OK;
+  ctx.body = "Update Template Successfully";
+  await next();
+});
+
 router.post("uploadFileTM", "/uploadFileTM", async (ctx, next) => {
   const fileName = "/../../TMList2.txt";
   fs.writeFile(__dirname + fileName, ctx.request.body.text, function (
@@ -37,10 +50,26 @@ router.post("uploadFileTM", "/uploadFileTM", async (ctx, next) => {
   await next();
 });
 
+router.post("addTemplate", "/addTemplate", async (ctx, next) => {
+  const fileName = "/../../template.txt";
+  fs.appendFile(__dirname + fileName, "\r\n" + ctx.request.body.text, function (
+    err,
+    data
+  ) {
+    console.log(err || data);
+  });
+  ctx.status = httpStatus.OK;
+  ctx.body = "Add Template Successfully";
+  await next();
+});
+
 router.get("productsShop", "/productsShop", async (ctx, next) => {
   // ctx.router available
-  const fileName = "/../../TMList2.txt";
-  const fileTM = fs.readFileSync(__dirname + fileName, "utf-8");
+  const fileNameTM = "/../../TMList2.txt";
+  const fileTM = fs.readFileSync(__dirname + fileNameTM, "utf-8");
+
+  const fileNameTemplate = "/../../template.txt";
+  const fileTemplate = fs.readFileSync(__dirname + fileNameTemplate, "utf-8");
   const query = ctx.query;
   const infoShop = await getInfoShop(query.url);
   const nameShop = infoShop.name;
@@ -50,7 +79,7 @@ router.get("productsShop", "/productsShop", async (ctx, next) => {
   if (checkShopExistInDatabase) {
     ctx.status = httpStatus.OK;
     const listProducts = await getAllProductsShop(allShop[0].id_shop);
-    ctx.body = { infoShop, listProducts, fileTM };
+    ctx.body = { infoShop, listProducts, fileTM, fileTemplate };
     await next();
   } else {
     const data = {};
@@ -78,12 +107,17 @@ router.get("productsShop", "/productsShop", async (ctx, next) => {
         const a = await getInfoProduct(xs[i].link);
         a.arrayImages.push(xs[i].img);
         data.id_product = id_product;
-        data.images_product = a.arrayImages;
+        data.images_product = a.arrayImages.slice(0, -1);
         data.listing_id = Number(a.listingID);
 
         let tags = "";
         const listTags = a.listTags || [];
-        listTags.forEach((e) => (tags = tags.concat(e).concat(",")));
+        console.log({ listTags });
+        listTags.forEach((e, index) => {
+          if (index < listTags.length - 1) {
+            tags = tags.concat(e).concat(",");
+          } else tags = tags.concat(e).concat(".");
+        });
         data.shop_id = infoShop.id_shop;
         data.tags = tags;
         data.name = xs[i].title;
@@ -97,7 +131,7 @@ router.get("productsShop", "/productsShop", async (ctx, next) => {
     };
     await getDataProducts(productsShop);
     ctx.status = httpStatus.OK;
-    ctx.body = { infoShop, listProducts, fileTM };
+    ctx.body = { infoShop, listProducts, fileTM, fileTemplate };
     await next();
   }
 });

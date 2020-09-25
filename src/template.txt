@@ -1,0 +1,3 @@
+Flag.id_product,images_product,name,tags,age,listing_id,check
+GodGroup.id_product,school,company,images_product,name,tags,age,listing_id,checkABC.id,name,age,university
+ABC.id,name,age,university
