@@ -9,17 +9,17 @@ const getInfoShop = async (url) => {
     });
 
     const data = await page.evaluate(async () => {
-      const info_shop_wrapper = document.querySelector(
-        ".wider-content .large-banner"
-      );
+      const info_shop_wrapper = document.querySelector(".wider-content");
       const nameShop = document.querySelector("h1").innerText;
       const shopWrapper = info_shop_wrapper.querySelector(".shop-icon");
-      const imageShop = shopWrapper.querySelector("img").src;
+      const imageShop = shopWrapper.querySelector(
+        ".shop-home-max-icon-width img"
+      ).src;
       const titleShop = shopWrapper.querySelector(
-        ".shop-name-and-title-container > span"
+        ".shop-info .shop-name-and-title-container > span"
       ).innerText;
       const numberOfSaleShopsTxt = shopWrapper.querySelector(
-        ".shop-icon .wt-text-body-01"
+        ".shop-info .wt-text-body-01"
       ).innerText;
       const numberOfSaleShops = numberOfSaleShopsTxt.replace(/\D/g, "");
       const numberOfFavouritesTxt = shopWrapper.querySelector(

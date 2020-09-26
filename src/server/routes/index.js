@@ -112,7 +112,6 @@ router.get("productsShop", "/productsShop", async (ctx, next) => {
 
         let tags = "";
         const listTags = a.listTags || [];
-        console.log({ listTags });
         listTags.forEach((e, index) => {
           if (index < listTags.length - 1) {
             tags = tags.concat(e).concat(",");

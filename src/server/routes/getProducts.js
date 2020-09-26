@@ -3,7 +3,7 @@ const puppeteer = require("puppeteer");
 const getProducts = async (url) => {
   const extractPartners = async (url) => {
     const page = await browser.newPage();
-    await page.setDefaultNavigationTimeout(0);
+    page.setDefaultNavigationTimeout(0);
     await page.goto(url, {
       timeout: 0,
       waitUntil: "load",
