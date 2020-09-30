@@ -33,7 +33,9 @@ router.put("updateDataToDB", "/updateDataToDB", async (ctx, next) => {
   const products = ctx.request.body.products;
 
   const result = await updateDataToDB(products);
-  console.log({ result });
+  if (result) {
+    ctx.body = "update data to db successfully";
+  } else ctx.body = "Error updata data";
   await next();
 });
 

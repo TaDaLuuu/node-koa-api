@@ -16,7 +16,6 @@ function updateDataToDB(products) {
   return knex("products").then(() => {
     Promise.all(
       products.map((product) => {
-        console.log({ product });
         return knex("products")
           .update({
             images_product: product.images_product,
