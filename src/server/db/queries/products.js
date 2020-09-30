@@ -12,23 +12,28 @@ function addProduct(product) {
   });
 }
 
-function updateMovie(id, movie) {
-  return knex("movies")
-    .update(movie)
-    .where({ id: parseInt(id) })
-    .returning("*");
-}
-
-function deleteMovie(id) {
-  return knex("movies")
-    .del()
-    .where({ id: parseInt(id) })
-    .returning("*");
+function updateDataToDB(products) {
+  return knex("products").then(() => {
+    Promise.all(
+      products.map((product) => {
+        console.log({ product });
+        return knex("products")
+          .update({
+            images_product: product.images_product,
+            name: product.name,
+            tags: product.tags,
+          })
+          .where({
+            shop_id: product.shop_id,
+            id_product: product.id_product,
+          });
+      })
+    );
+  });
 }
 
 module.exports = {
   addProduct,
   getAllProductsShop,
-  updateMovie,
-  deleteMovie,
+  updateDataToDB,
 };

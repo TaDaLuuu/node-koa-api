@@ -9,7 +9,12 @@ const {
   addInfoShop,
   getAllProductsShopByName,
 } = require("../db/queries/shops");
-const { addProduct, getAllProductsShop } = require("../db/queries/products");
+const {
+  addProduct,
+  getAllProductsShop,
+  updateDataToDB,
+} = require("../db/queries/products");
+
 const fs = require("fs");
 
 const checkExist = (arr, name) => {
@@ -22,6 +27,14 @@ router.get("/", async (ctx) => {
     status: "success",
     message: "hello, world!",
   };
+});
+
+router.put("updateDataToDB", "/updateDataToDB", async (ctx, next) => {
+  const products = ctx.request.body.products;
+
+  const result = await updateDataToDB(products);
+  console.log({ result });
+  await next();
 });
 
 router.post("uploadTemplate", "/uploadTemplate", async (ctx, next) => {
